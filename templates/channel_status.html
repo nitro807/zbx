@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Статус каналов</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Список хостов из групп Xfit и gr3</h1>
+    {% if error %}
+        <div style="color: red; font-weight: bold;">Ошибка: {{ error }}</div>
+    {% endif %}
+    <div class="grid">
+        {% for host in hosts %}
+            <div class="card">
+                <div class="label">{{ host.name }}</div>
+                <div class="ip">IP: {{ host.interfaces[0].ip if host.interfaces }}</div>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

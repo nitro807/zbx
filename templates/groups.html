@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список групп Zabbix</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Список всех групп Zabbix</h1>
+    {% if error %}
+        <div style="color: red; font-weight: bold;">Ошибка: {{ error }}</div>
+    {% endif %}
+    <div class="grid">
+        {% for group in groups %}
+            <div class="card">
+                <div class="label">{{ group.name }}</div>
+                <div class="ip">ID: {{ group.groupid }}</div>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html> 
