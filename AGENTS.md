@@ -15,6 +15,10 @@ pages are rendered with Jinja2 templates under `templates/`.
 - Use `uvicorn main:app --reload` to run the application during development.
 - There are no automated tests. Do **not** attempt to run tests.
 
+## MikroTik Integration
+- MikroTik devices are accessed using the `librouteros` library.
+- Configure `MIKROTIK_USER` and `MIKROTIK_PASSWORD` in the environment.
+
 ## Commit Messages
 Describe the intent of the change briefly, e.g. "Add error handling to
 zabbix_request".

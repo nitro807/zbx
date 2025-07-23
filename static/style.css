@@ -35,6 +35,11 @@ h1 {
     margin-top: 4px;
 }
 
+.card .channel {
+    margin-top: 4px;
+    font-weight: bold;
+}
+
 .status span {
     display: inline-block;
     margin-right: 4px;

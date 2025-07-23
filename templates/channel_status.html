@@ -14,7 +14,8 @@
         {% for host in hosts %}
             <div class="card">
                 <div class="label">{{ host.name }}</div>
-                <div class="ip">IP: {{ host.interfaces[0].ip if host.interfaces }}</div>
+                <div class="ip">IP: {{ host.ip }}</div>
+                <div class="channel">Канал: {{ host.channel }}</div>
             </div>
         {% endfor %}
     </div>
