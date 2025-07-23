@@ -11,7 +11,7 @@ pages are rendered with Jinja2 templates under `templates/`.
 - All environment values (e.g. `ZABBIX_URL`, `ZABBIX_USER`, `ZABBIX_PASSWORD`)
   are loaded with `python-dotenv`. Do not hard‑code secrets.
 - Functions in `app/zabbix_api.py` accept an optional `name_filter` argument to
-  filter hosts by name in addition to group membership.
+  filter hosts by **substring** in addition to group membership.
 - Use `uvicorn main:app --reload` to run the application during development.
 - There are no automated tests. Do **not** attempt to run tests.
 

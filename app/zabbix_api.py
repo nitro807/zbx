@@ -75,7 +75,11 @@ def zabbix_request(method, params, auth):
 
 
 def get_hosts_by_group(group_name, auth, name_filter=None):
-    """Return active hosts from the group, optionally filtered by name."""
+    """Return active hosts from a group.
+
+    If ``name_filter`` is provided, only hosts whose names contain the given
+    substring are returned.
+    """
     group_id = get_group_id(group_name, auth)
     print(f"[ZBX] GROUP ID for {group_name}: {group_id}")
 
@@ -86,8 +90,8 @@ def get_hosts_by_group(group_name, auth, name_filter=None):
         "filter": {"status": "0"},  # Только активные хосты
     }
     if name_filter:
+        # Zabbix performs a substring search on the provided value
         params["search"] = {"name": name_filter}
-        params["searchWildcardsEnabled"] = True
 
     result = zabbix_request("host.get", params, auth)
     print(f"[ZBX] HOSTS for group {group_name}: {result}")
