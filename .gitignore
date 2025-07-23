@@ -1,2 +1,54 @@
+# ───── Python ─────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+
+# ───── Virtualenv / Envs ─────
+venv/
+env/
+.venv/
 .env
-/venv/
+.env.*
+
+# ───── IDE & System ─────
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ───── Logs и отчёты ─────
+*.log
+*.err
+*.out
+*.report
+*.prof
+
+# ───── Prometheus ─────
+prometheus/data/
+prometheus/*.tsdb
+prometheus/*.db
+prometheus/*.log
+
+# ───── Docker ─────
+*.pid
+*.tar
+*.gz
+docker-compose.override.yml
+
+# ───── Zabbix ─────
+zabbix/_out/        # экспорт шаблонов
+zabbix/*.xml         # экспорт в XML
+
+# ───── Migrations, сборки ─────
+migrations/
+*.sqlite3
+*.db
+
+# ───── PyTest ─────
+htmlcov/
+.coverage
+.pytest_cache/
+
