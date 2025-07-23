@@ -8,6 +8,7 @@ from app.zabbix_api import (
     get_all_groups,
     zabbix_login,
 )
+from app.mikrotik_api import get_channel_status
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -18,7 +19,16 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def index(request: Request):
     try:
         auth = zabbix_login()
-        hosts = get_hosts_by_groups(["gr3", "Xfit"], auth, name_filter="gr3")
+        raw_hosts = get_hosts_by_groups(["gr3", "Xfit"], auth, name_filter="gr3")
+        hosts = []
+        for h in raw_hosts:
+            ip = h.get("interfaces", [{}])[0].get("ip")
+            channel = get_channel_status(ip)
+            hosts.append({
+                "name": h.get("name"),
+                "ip": ip,
+                "channel": channel,
+            })
     except Exception as e:
         print(f"[MAIN] Ошибка в index: {e}")
         return templates.TemplateResponse(
