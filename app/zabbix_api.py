@@ -1,13 +1,12 @@
-from dotenv import load_dotenv
-load_dotenv()
-
+import json
 import os
 import requests
-import json
+from dotenv import load_dotenv
 
-
+load_dotenv()
 ZABBIX_URL = os.getenv("ZABBIX_URL")
 ZABBIX_TOKEN = os.getenv("ZABBIX_TOKEN")
+
 
 def zabbix_login():
     url = os.getenv("ZABBIX_URL")
@@ -24,7 +23,12 @@ def zabbix_login():
         "id": 1
     }
     try:
-        response = requests.post(url, headers={"Content-Type": "application/json"}, json=data, verify=False)
+        response = requests.post(
+            url,
+            headers={"Content-Type": "application/json"},
+            json=data,
+            verify=False,
+        )
         print(f"[ZBX] Ответ на логин: {response.status_code}")
         print(f"[ZBX] Тело ответа: {response.text}")
         resp_json = response.json()
@@ -49,7 +53,12 @@ def zabbix_request(method, params, auth):
     }
     print(f"[ZBX] Запрос: {json.dumps(data, ensure_ascii=False)}")
     try:
-        response = requests.post(url, headers={"Content-Type": "application/json"}, json=data, verify=False)
+        response = requests.post(
+            url,
+            headers={"Content-Type": "application/json"},
+            json=data,
+            verify=False,
+        )
         print(f"[ZBX] Ответ: {response.status_code}")
         print(f"[ZBX] Тело ответа: {response.text}")
         resp_json = response.json()
@@ -65,10 +74,8 @@ def zabbix_request(method, params, auth):
         raise
 
 
-
-
-
-def get_hosts_by_group(group_name, auth):
+def get_hosts_by_group(group_name, auth, name_filter=None):
+    """Return active hosts from the group, optionally filtered by name."""
     group_id = get_group_id(group_name, auth)
     print(f"[ZBX] GROUP ID for {group_name}: {group_id}")
 
@@ -76,16 +83,15 @@ def get_hosts_by_group(group_name, auth):
         "output": ["hostid", "host", "name", "status"],
         "selectInterfaces": ["ip"],
         "groupids": group_id,
-        "filter": {
-            "status": "0"  # Только активные хосты
-        }
+        "filter": {"status": "0"},  # Только активные хосты
     }
+    if name_filter:
+        params["search"] = {"name": name_filter}
+        params["searchWildcardsEnabled"] = True
 
     result = zabbix_request("host.get", params, auth)
     print(f"[ZBX] HOSTS for group {group_name}: {result}")
     return result
-
-
 
 
 def get_group_id(group_name, auth):
@@ -99,12 +105,7 @@ def get_group_id(group_name, auth):
 
     if not groups:
         raise Exception(f"Zabbix group '{group_name}' not found")
-
     return groups[0]["groupid"]
-
-
-
-
 
 
 def get_group_ids(group_names, auth):
@@ -119,12 +120,16 @@ def get_group_ids(group_names, auth):
     return [g["groupid"] for g in groups]
 
 
-def get_hosts_by_groups(group_names, auth):
-    print(f"[ZBX] AND-режим: ищем хосты, которые входят во все группы: {group_names}")
+def get_hosts_by_groups(group_names, auth, name_filter=None):
+    """Return hosts that belong to all groups and match the name filter."""
+    print(
+        "[ZBX] AND-режим: ищем хосты, которые входят во все группы: "
+        f"{group_names}"
+    )
     host_sets = []
     host_details = {}
     for group in group_names:
-        hosts = get_hosts_by_group(group, auth)
+        hosts = get_hosts_by_group(group, auth, name_filter)
         ids = set()
         for h in hosts:
             ids.add(h["hostid"])
