@@ -85,7 +85,7 @@ def get_hosts_by_group(group_name, auth, name_filter=None):
 
     params = {
         "output": ["hostid", "host", "name", "status"],
-        "selectInterfaces": ["ip"],
+        "selectInterfaces": ["ip","port"],
         "groupids": group_id,
         "filter": {"status": "0"},  # Только активные хосты
     }

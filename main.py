@@ -23,7 +23,9 @@ async def index(request: Request):
         hosts = []
         for h in raw_hosts:
             ip = h.get("interfaces", [{}])[0].get("ip")
-            channel = get_channel_status(ip)
+            port = 8728
+            # port = h.get("interfaces", [{}])[0].get("port")
+            channel = get_channel_status(ip, port)
             hosts.append({
                 "name": h.get("name"),
                 "ip": ip,
