@@ -18,6 +18,8 @@ pages are rendered with Jinja2 templates under `templates/`.
 ## MikroTik Integration
 - MikroTik devices are accessed using the `librouteros` library.
 - Configure `MIKROTIK_USER` and `MIKROTIK_PASSWORD` in the environment.
+- The `/metrics` endpoint exposes channel metrics for Prometheus.
+- The `/icmp_stats` endpoint returns ICMP loss and response time as JSON for Grafana.
 
 ## Commit Messages
 Describe the intent of the change briefly, e.g. "Add error handling to

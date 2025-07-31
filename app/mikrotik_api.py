@@ -44,3 +44,9 @@ def get_channel_status(host_ip: str, port=8728) -> str:
     except Exception as exc:
         print(f"[MT] Error for {host_ip}:{port} {exc}")
     return "unknown"
+
+
+def channel_status_value(status: str) -> int:
+    """Map textual channel status to a numeric value."""
+    mapping = {"main": 1, "backup": 0}
+    return mapping.get(status, -1)
