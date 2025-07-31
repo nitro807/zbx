@@ -32,10 +32,13 @@ Include a short summary of the change and mention any manual steps required.
 Use print statements or a simple logging setup for debugging. Log files may be stored as `log.txt` when running the server with `nohup`.
 
 ## Docker Compose
-A `docker-compose.yml` file builds the service image. Define your Zabbix and MikroTik credentials in a `.env` file and run:
+The `docker-compose.yml` file launches the FastAPI service along with
+Prometheus and Grafana. Define your Zabbix and MikroTik credentials in a
+`.env` file and run:
 
 ```
 docker compose up --build
 ```
 
-The API will be available on port 8000.
+Prometheus listens on port `9090`, Grafana on `3000` (admin password `admin`),
+and the API on port `8000`.
