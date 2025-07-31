@@ -56,7 +56,7 @@ def update_metrics():
 async def index(request: Request):
     try:
         auth = zabbix_login()
-        raw_hosts = get_hosts_by_groups(["gr3", "Xfit"], auth, name_filter="gr3")
+        raw_hosts = get_hosts_by_groups(["Gr3", "Xfit"], auth, name_filter="gr3")
         hosts = []
         for h in raw_hosts:
             ip = h.get("interfaces", [{}])[0].get("ip")

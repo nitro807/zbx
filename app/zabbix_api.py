@@ -5,19 +5,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 ZABBIX_URL = os.getenv("ZABBIX_URL")
-ZABBIX_TOKEN = os.getenv("ZABBIX_TOKEN")
 
 
 def zabbix_login():
     url = os.getenv("ZABBIX_URL")
-    user = os.getenv("ZABBIX_USER")
+    username = os.getenv("ZABBIX_USER")
     password = os.getenv("ZABBIX_PASSWORD")
-    print(f"[ZBX] Попытка логина: user={user}, url={url}")
+    print(f"[ZBX] Попытка логина: username={username}, url={url}")
     data = {
         "jsonrpc": "2.0",
         "method": "user.login",
         "params": {
-            "user": user,
+            "username": username,
             "password": password
         },
         "id": 1
