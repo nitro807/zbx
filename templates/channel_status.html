@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>Список хостов из групп Xfit и Gr3</h1>
+    <h1>Список хостов из группы Xfit</h1>
     {% if error %}
         <div style="color: red; font-weight: bold;">Ошибка: {{ error }}</div>
     {% endif %}
@@ -16,6 +16,8 @@
                 <div class="label">{{ host.name }}</div>
                 <div class="ip">IP: {{ host.ip }}</div>
                 <div class="channel">Канал: {{ host.channel }}</div>
+                <div class="loss">Loss 15m: {{ host.loss }}</div>
+                <div class="resp">Resp 1m: {{ host.resp }}</div>
             </div>
         {% endfor %}
     </div>
