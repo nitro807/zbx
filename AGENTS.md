@@ -18,6 +18,8 @@ pages are rendered with Jinja2 templates under `templates/`.
 ## MikroTik Integration
 - MikroTik devices are accessed using the `librouteros` library.
 - Configure `MIKROTIK_USER` and `MIKROTIK_PASSWORD` in the environment.
+- The `/metrics` endpoint exposes channel metrics for Prometheus.
+- The `/icmp_stats` endpoint returns ICMP loss and response time as JSON for Grafana.
 
 ## Commit Messages
 Describe the intent of the change briefly, e.g. "Add error handling to
@@ -28,3 +30,15 @@ Include a short summary of the change and mention any manual steps required.
 
 ## Logging
 Use print statements or a simple logging setup for debugging. Log files may be stored as `log.txt` when running the server with `nohup`.
+
+## Docker Compose
+The `docker-compose.yml` file launches the FastAPI service along with
+Prometheus and Grafana. Define your Zabbix and MikroTik credentials in a
+`.env` file and run:
+
+```
+docker compose up --build
+```
+
+Prometheus listens on port `9090`, Grafana on `3000` (admin password `admin`),
+and the API on port `8000`.

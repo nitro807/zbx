@@ -156,3 +156,27 @@ def get_all_groups(auth):
     }, auth)
     print(f"[ZBX] ALL GROUPS: {groups}")
     return groups
+
+
+def get_icmp_metrics(host_id, auth):
+    """Return ICMP statistics for a host."""
+    params = {
+        "output": ["name", "lastvalue"],
+        "hostids": host_id,
+        "filter": {
+            "name": [
+                "ICMP loss avg 15m",
+                "ICMP response time avg 1m",
+            ]
+        },
+    }
+    items = zabbix_request("item.get", params, auth)
+    metrics = {}
+    for item in items:
+        name = item.get("name")
+        value = item.get("lastvalue")
+        if name == "ICMP loss avg 15m":
+            metrics["loss_15m"] = float(value)
+        if name == "ICMP response time avg 1m":
+            metrics["resp_1m"] = float(value)
+    return metrics
