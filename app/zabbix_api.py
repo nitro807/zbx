@@ -179,3 +179,19 @@ def get_icmp_metrics(host_id, auth):
         if name == "ICMP response time avg 1m":
             metrics["resp_1m"] = float(value)
     return metrics
+
+
+def get_host_ip(host_name: str, auth: str) -> str:
+    """Return the primary interface IP for a host by name."""
+
+    params = {
+        "output": ["hostid", "name"],
+        "selectInterfaces": ["ip"],
+        "filter": {"name": [host_name]},
+        "limit": 1,
+    }
+    hosts = zabbix_request("host.get", params, auth)
+    if not hosts:
+        print(f"[ZBX] Host '{host_name}' not found")
+        return ""
+    return hosts[0].get("interfaces", [{}])[0].get("ip", "")

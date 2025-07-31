@@ -4,9 +4,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from app.zabbix_api import (
     get_hosts_by_group,
-    get_hosts_by_groups,
     get_all_groups,
     zabbix_login,
+    get_host_ip,
 )
 from prometheus_client import (
     CollectorRegistry,
@@ -26,6 +26,20 @@ channel_gauge = Gauge(
     registry=registry,
 )
 
+loss_gauge = Gauge(
+    "icmp_loss_avg_15m",
+    "ICMP packet loss average over 15 minutes",
+    ["host"],
+    registry=registry,
+)
+
+resp_gauge = Gauge(
+    "icmp_response_time_avg_1m",
+    "ICMP response time average over 1 minute",
+    ["host"],
+    registry=registry,
+)
+
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -34,39 +48,48 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 def update_metrics():
     """Collect MikroTik and Zabbix statistics."""
     auth = zabbix_login()
-    raw_hosts = get_hosts_by_group("Xfit", auth)
-    icmp_results = []
-    for host in raw_hosts:
-        ip = host.get("interfaces", [{}])[0].get("ip")
-        port = 8728
+    base_hosts = get_hosts_by_group("Xfit", auth)
+    results = []
+    for host in base_hosts:
         name = host.get("name")
-
-        status = get_channel_status(ip, port)
-        channel_gauge.labels(host=f"{name}.Gr3").set(channel_status_value(status))
-
         metrics = get_icmp_metrics(host["hostid"], auth)
-        icmp_results.append({
-            "host": name,
+
+        mikrotik_name = f"{name}.Gr3"
+        ip = get_host_ip(mikrotik_name, auth)
+        status = get_channel_status(ip, 8728)
+
+        channel_gauge.labels(host=name).set(channel_status_value(status))
+        loss_gauge.labels(host=name).set(metrics.get("loss_15m", -1))
+        resp_gauge.labels(host=name).set(metrics.get("resp_1m", -1))
+
+        results.append({
+            "name": name,
+            "ip": ip,
+            "channel": status,
             **metrics,
         })
-    return icmp_results
+    return results
 
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     try:
         auth = zabbix_login()
-        raw_hosts = get_hosts_by_groups(["Gr3", "Xfit"], auth, name_filter="gr3")
+        base_hosts = get_hosts_by_group("Xfit", auth)
         hosts = []
-        for h in raw_hosts:
-            ip = h.get("interfaces", [{}])[0].get("ip")
-            port = 8728
-            # port = h.get("interfaces", [{}])[0].get("port")
-            channel = get_channel_status(ip, port)
+        for h in base_hosts:
+            name = h.get("name")
+            metrics = get_icmp_metrics(h["hostid"], auth)
+
+            mk_name = f"{name}.Gr3"
+            ip = get_host_ip(mk_name, auth)
+            channel = get_channel_status(ip, 8728)
             hosts.append({
-                "name": h.get("name"),
+                "name": name,
                 "ip": ip,
                 "channel": channel,
+                "loss": metrics.get("loss_15m"),
+                "resp": metrics.get("resp_1m"),
             })
     except Exception as e:
         print(f"[MAIN] Ошибка в index: {e}")
