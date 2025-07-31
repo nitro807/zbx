@@ -164,7 +164,7 @@ def get_icmp_metrics(host_id, auth):
         "hostids": host_id,
         "filter": {
             "name": [
-                "ICMP loss avg 15m",
+                "ICMP loss avg 15 m",
                 "ICMP response time avg 1m",
             ]
         },
@@ -174,10 +174,10 @@ def get_icmp_metrics(host_id, auth):
     for item in items:
         name = item.get("name")
         value = item.get("lastvalue")
-        if name == "ICMP loss avg 15m":
-            metrics["loss_15m"] = float(value)
+        if name == "ICMP loss avg 15 m":
+            metrics["loss_15m"] = round(float(value), 2)
         if name == "ICMP response time avg 1m":
-            metrics["resp_1m"] = float(value)
+            metrics["resp_1m"] = round(float(value)*1000,2)
     return metrics
 
 

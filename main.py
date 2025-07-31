@@ -48,7 +48,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 def update_metrics():
     """Collect MikroTik and Zabbix statistics."""
     auth = zabbix_login()
-    base_hosts = get_hosts_by_group("Xfit", auth)
+    base_hosts = get_hosts_by_group("xfit", auth)
     results = []
     for host in base_hosts:
         name = host.get("name")
@@ -75,7 +75,7 @@ def update_metrics():
 async def index(request: Request):
     try:
         auth = zabbix_login()
-        base_hosts = get_hosts_by_group("Xfit", auth)
+        base_hosts = get_hosts_by_group("xfit", auth)
         hosts = []
         for h in base_hosts:
             name = h.get("name")
@@ -88,7 +88,7 @@ async def index(request: Request):
                 "name": name,
                 "ip": ip,
                 "channel": channel,
-                "loss": metrics.get("loss_15m"),
+                "loss": str(metrics.get("loss_15m"))+"%  ",
                 "resp": metrics.get("resp_1m"),
             })
     except Exception as e:

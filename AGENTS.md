@@ -19,7 +19,7 @@ pages are rendered with Jinja2 templates under `templates/`.
 - MikroTik devices are accessed using the `librouteros` library.
 - Configure `MIKROTIK_USER` and `MIKROTIK_PASSWORD` in the environment.
 - The `/metrics` endpoint exposes channel status and ICMP statistics for
-  hosts in the `Xfit` group. Channel information is taken from hosts named
+  hosts in the `xfit` group. Channel information is taken from hosts named
   `<name>.Gr3`.
 - The `/icmp_stats` endpoint returns the same metrics as JSON for Grafana.
 
