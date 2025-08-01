@@ -32,11 +32,12 @@ def get_channel_status(host_ip: str, port=8728) -> str:
             if route.get("dst-address") != "0.0.0.0/0":
                 continue
             status = str(route.get("gateway-status", ""))
+            status2 = str(route.get("gateway", ""))
             print(status)
-            if any(tag in status for tag in ("CCR11", "CCR22")):
+            if any(tag in status or tag in status2 for tag in ("CCR11", "CCR22")):
                 api.close()
                 return "main"
-            if any(tag in status for tag in ("CCR12", "CCR21")):
+            if any(tag in status or tag in status2 for tag in ("CCR12", "CCR21")):
                 api.close()
                 return "backup"
 
