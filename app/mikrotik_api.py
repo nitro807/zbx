@@ -47,6 +47,14 @@ def get_channel_status(host_ip: str, port=8728) -> str:
 
 
 def channel_status_value(status: str) -> int:
-    """Map textual channel status to a numeric value."""
+    """Map MikroTik channel state to a numeric value."""
+
     mapping = {"main": 1, "backup": 0}
     return mapping.get(status, -1)
+
+
+def channel_status_value_special(status: str) -> int:
+    """Numeric status for channels that rely on ICMP only."""
+
+    mapping = {"main": 1, "unknown": 0}
+    return mapping.get(status, 0)

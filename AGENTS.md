@@ -21,6 +21,11 @@ pages are rendered with Jinja2 templates under `templates/`.
 - The `/metrics` endpoint exposes channel status and ICMP statistics for
   hosts in the `xfit` group. Channel information is taken from hosts named
   `<name>.Gr3`.
+- If the MikroTik host is `ALT OF.Gr3` or `SEL.Gr3`, ICMP metrics are read from
+  the Zabbix hosts `ALT OF` and `SEL` respectively.  The channel is considered
+  `main` when these hosts respond to ping and `unknown` otherwise.
+- Special channels map `main` to ``1`` and `unknown` to ``0``.  Other hosts use
+  ``1`` for `main`, ``0`` for `backup`, and ``-1`` for `unknown`.
 - The `/icmp_stats` endpoint returns the same metrics as JSON for Grafana.
 
 ## Commit Messages
