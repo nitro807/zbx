@@ -26,6 +26,7 @@ pages are rendered with Jinja2 templates under `templates/`.
   `main` when these hosts respond to ping and `unknown` otherwise.
 - Special channels map `main` to ``1`` and `unknown` to ``0``.  Other hosts use
   ``1`` for `main`, ``0`` for `backup`, and ``-1`` for `unknown`.
+
 - The `/icmp_stats` endpoint returns the same metrics as JSON for Grafana.
 
 ## Commit Messages

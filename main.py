@@ -19,6 +19,7 @@ from app.mikrotik_api import (
     channel_status_value,
     channel_status_value_special,
 )
+
 from app.zabbix_api import get_icmp_metrics, get_host_id
 
 
@@ -59,8 +60,16 @@ def update_metrics():
         metrics = get_icmp_metrics(host["hostid"], auth)
 
         mikrotik_name = f"{name}.Gr3"
-        ip = get_host_ip(mikrotik_name, auth)
-        status = get_channel_status(ip, 8728)
+        if mikrotik_name in ("ALT OF.Gr3", "SEL.Gr3"):
+            special_name = "ALT OF" if mikrotik_name == "ALT OF.Gr3" else "SEL"
+            host_id = get_host_id(special_name, auth)
+            if host_id:
+                metrics = get_icmp_metrics(host_id, auth)
+            ip = get_host_ip(mikrotik_name, auth)
+            status = "unknown"
+        else:
+            ip = get_host_ip(mikrotik_name, auth)
+            status = get_channel_status(ip, 8728)
 
         if mikrotik_name in ("ALT OF.Gr3", "SEL.Gr3"):
             special_name = "ALT OF" if mikrotik_name == "ALT OF.Gr3" else "SEL"
