@@ -195,3 +195,18 @@ def get_host_ip(host_name: str, auth: str) -> str:
         print(f"[ZBX] Host '{host_name}' not found")
         return ""
     return hosts[0].get("interfaces", [{}])[0].get("ip", "")
+
+
+def get_host_id(host_name: str, auth: str) -> str:
+    """Return Zabbix host ID for a given host name."""
+
+    params = {
+        "output": ["hostid"],
+        "filter": {"name": [host_name]},
+        "limit": 1,
+    }
+    hosts = zabbix_request("host.get", params, auth)
+    if not hosts:
+        print(f"[ZBX] Host '{host_name}' not found")
+        return ""
+    return hosts[0].get("hostid", "")
