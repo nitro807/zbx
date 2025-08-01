@@ -14,7 +14,12 @@ from prometheus_client import (
     generate_latest,
     CONTENT_TYPE_LATEST,
 )
-from app.mikrotik_api import get_channel_status, channel_status_value
+from app.mikrotik_api import (
+    get_channel_status,
+    channel_status_value,
+    channel_status_value_special,
+)
+
 from app.zabbix_api import get_icmp_metrics, get_host_id
 
 
@@ -66,7 +71,17 @@ def update_metrics():
             ip = get_host_ip(mikrotik_name, auth)
             status = get_channel_status(ip, 8728)
 
-        channel_gauge.labels(host=name).set(channel_status_value(status))
+        if mikrotik_name in ("ALT OF.Gr3", "SEL.Gr3"):
+            special_name = "ALT OF" if mikrotik_name == "ALT OF.Gr3" else "SEL"
+            host_id = get_host_id(special_name, auth)
+            if host_id:
+                metrics = get_icmp_metrics(host_id, auth)
+            status = "main" if metrics.get("loss_15m", 100) < 100 else "unknown"
+            gauge_value = channel_status_value_special(status)
+        else:
+            gauge_value = channel_status_value(status)
+
+        channel_gauge.labels(host=name).set(gauge_value)
         loss_gauge.labels(host=name).set(metrics.get("loss_15m", -1))
         resp_gauge.labels(host=name).set(metrics.get("resp_1m", -1))
 
@@ -90,21 +105,23 @@ async def index(request: Request):
             metrics = get_icmp_metrics(h["hostid"], auth)
 
             mk_name = f"{name}.Gr3"
+            ip = get_host_ip(mk_name, auth)
+            channel = get_channel_status(ip, 8728)
+
             if mk_name in ("ALT OF.Gr3", "SEL.Gr3"):
                 special_name = "ALT OF" if mk_name == "ALT OF.Gr3" else "SEL"
                 host_id = get_host_id(special_name, auth)
                 if host_id:
                     metrics = get_icmp_metrics(host_id, auth)
-                ip = get_host_ip(mk_name, auth)
-                channel = "unknown"
+                channel = "main" if metrics.get("loss_15m", 100) < 100 else "unknown"
+                value = channel_status_value_special(channel)
             else:
-                ip = get_host_ip(mk_name, auth)
-                channel = get_channel_status(ip, 8728)
+                value = channel_status_value(channel)
             hosts.append({
                 "name": name,
                 "ip": ip,
-                "channel": channel,
-                "loss": str(metrics.get("loss_15m"))+"%  ",
+                "channel": value,
+                "loss": str(metrics.get("loss_15m")) + "%  ",
                 "resp": metrics.get("resp_1m"),
             })
     except Exception as e:
