@@ -47,6 +47,10 @@ def get_channel_status(host_ip: str, port=8728) -> str:
 
 
 def channel_status_value(status: str) -> int:
-    """Map textual channel status to a numeric value."""
-    mapping = {"main": 1, "backup": 0}
-    return mapping.get(status, -1)
+    """Map textual channel status to a numeric value.
+
+    `main` is reported as ``1`` while `backup` and `unknown` are ``0``.
+    """
+
+    mapping = {"main": 1, "backup": 0, "unknown": 0}
+    return mapping.get(status, 0)
