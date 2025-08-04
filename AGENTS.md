@@ -20,7 +20,8 @@ pages are rendered with Jinja2 templates under `templates/`.
 - Configure `MIKROTIK_USER` and `MIKROTIK_PASSWORD` in the environment.
 - The `/metrics` endpoint exposes channel status and ICMP statistics for
   hosts in the `xfit` group. Channel information is taken from hosts named
-  `<name>.Gr3`.
+  `<name>.Gr3`. It also exports `ICMP response time avg 1m` for hosts in the
+  `xfit_reserve` group.
 - If the MikroTik host is `ALT OF.Gr3` or `SEL.Gr3`, ICMP metrics are read from
   the Zabbix hosts `ALT OF` and `SEL` respectively.  The channel is considered
   `main` when these hosts respond to ping and `unknown` otherwise.
