@@ -51,16 +51,17 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 def update_metrics():
-    """Collect MikroTik and Zabbix statistics."""
+    """Collect statistics for xfit and xfit_reserve hosts."""
     auth = zabbix_login()
     base_hosts = get_hosts_by_group("xfit", auth)
+    reserve_hosts = get_hosts_by_group("xfit_reserve", auth)
     results = []
+
     for host in base_hosts:
         name = host.get("name")
         metrics = get_icmp_metrics(host["hostid"], auth)
 
         mikrotik_name = f"{name}.Gr3"
-
         if mikrotik_name in ("ALT OF.Gr3", "SEL.Gr3"):
             special_name = "ALT OF" if mikrotik_name == "ALT OF.Gr3" else "SEL"
             host_id = get_host_id(special_name, auth)
@@ -68,6 +69,7 @@ def update_metrics():
             print("--------------------------------")
             print(f"[MAIN] {name} {status} type {type(metrics.get('ping', 0))}")
             gauge_value = channel_status_value_special(status)
+            ip = ""
         else:
             ip = get_host_ip(mikrotik_name, auth)
             status = get_channel_status(ip, 8728)
@@ -77,12 +79,29 @@ def update_metrics():
         loss_gauge.labels(host=name).set(metrics.get("loss_15m", -1))
         resp_gauge.labels(host=name).set(metrics.get("resp_1m", -1))
 
-        results.append({
-            "name": name,
-            "ip": ip,
-            "channel": status,
-            **metrics,
-        })
+        results.append(
+            {
+                "name": name,
+                "ip": ip,
+                "channel": status,
+                **metrics,
+            }
+        )
+
+    for host in reserve_hosts:
+        name = host.get("name")
+        metrics = get_icmp_metrics(host["hostid"], auth)
+        resp = metrics.get("resp_1m", -1)
+        resp_gauge.labels(host=name).set(resp)
+        results.append(
+            {
+                "name": name,
+                "ip": get_host_ip(name, auth),
+                "channel": "",
+                "resp_1m": resp,
+            }
+        )
+
     return results
 
 
