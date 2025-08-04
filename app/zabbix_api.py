@@ -166,6 +166,7 @@ def get_icmp_metrics(host_id, auth):
             "name": [
                 "ICMP loss avg 15 m",
                 "ICMP response time avg 1m",
+                'ICMP ping'
             ]
         },
     }
@@ -178,6 +179,9 @@ def get_icmp_metrics(host_id, auth):
             metrics["loss_15m"] = round(float(value), 2)
         if name == "ICMP response time avg 1m":
             metrics["resp_1m"] = round(float(value)*1000,2)
+        if name == "ICMP ping":
+            print(f"[ZBX] ICMP ping: {value}")
+            metrics["ping"] = value
     return metrics
 
 

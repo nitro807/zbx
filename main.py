@@ -60,25 +60,17 @@ def update_metrics():
         metrics = get_icmp_metrics(host["hostid"], auth)
 
         mikrotik_name = f"{name}.Gr3"
-        if mikrotik_name in ("ALT OF.Gr3", "SEL.Gr3"):
-            special_name = "ALT OF" if mikrotik_name == "ALT OF.Gr3" else "SEL"
-            host_id = get_host_id(special_name, auth)
-            if host_id:
-                metrics = get_icmp_metrics(host_id, auth)
-            ip = get_host_ip(mikrotik_name, auth)
-            status = "unknown"
-        else:
-            ip = get_host_ip(mikrotik_name, auth)
-            status = get_channel_status(ip, 8728)
 
         if mikrotik_name in ("ALT OF.Gr3", "SEL.Gr3"):
             special_name = "ALT OF" if mikrotik_name == "ALT OF.Gr3" else "SEL"
             host_id = get_host_id(special_name, auth)
-            if host_id:
-                metrics = get_icmp_metrics(host_id, auth)
-            status = "main" if metrics.get("loss_15m", 100) < 100 else "unknown"
+            status = "main" if metrics.get("ping", 0) == "1" else "unknown"
+            print("--------------------------------")
+            print(f"[MAIN] {name} {status} type {type(metrics.get('ping', 0))}")
             gauge_value = channel_status_value_special(status)
         else:
+            ip = get_host_ip(mikrotik_name, auth)
+            status = get_channel_status(ip, 8728)
             gauge_value = channel_status_value(status)
 
         channel_gauge.labels(host=name).set(gauge_value)

@@ -57,5 +57,5 @@ def channel_status_value(status: str) -> int:
 def channel_status_value_special(status: str) -> int:
     """Numeric status for channels that rely on ICMP only."""
 
-    mapping = {"main": 1, "unknown": 0}
-    return mapping.get(status, 0)
+    mapping = {"main": 1, "unknown": -1}
+    return mapping.get(status, -1)
