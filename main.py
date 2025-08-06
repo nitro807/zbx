@@ -19,6 +19,11 @@ from app.mikrotik_api import (
     channel_status_value,
     channel_status_value_special,
 )
+import threading
+import time
+
+cached_data = b""
+
 
 from app.zabbix_api import get_icmp_metrics, get_host_id
 
@@ -49,12 +54,22 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+def metrics_updater():
+    global cached_data
+    while True:
+        try:
+            update_metrics()
+            cached_data = generate_latest(registry)
+        except Exception as e:
+            print(f"[METRICS] Ошибка при обновлении метрик: {e}")
+        time.sleep(30)  # обновлять раз в 30 секунд
+
 
 def update_metrics():
     """Collect statistics for xfit and xfit_reserve hosts."""
     auth = zabbix_login()
     base_hosts = get_hosts_by_group("xfit", auth)
-    reserve_hosts = get_hosts_by_group("xfit_reserve", auth)
+    reserve_hosts = get_hosts_by_group("xfit_reserv", auth)
     results = []
 
     for host in base_hosts:
@@ -90,15 +105,20 @@ def update_metrics():
 
     for host in reserve_hosts:
         name = host.get("name")
+        ip = get_host_ip(name, auth)
         metrics = get_icmp_metrics(host["hostid"], auth)
-        resp = metrics.get("resp_1m", -1)
-        resp_gauge.labels(host=name).set(resp)
+        status = "main" if metrics.get("ping", 0) == "1" else "unknown"
+        gauge_value = channel_status_value_special(status)
+        channel_gauge.labels(host=name).set(gauge_value)
+        loss_gauge.labels(host=name).set(metrics.get("loss_15m", -1))
+        resp_gauge.labels(host=name).set(metrics.get("resp_1m", -1))
+
         results.append(
             {
                 "name": name,
-                "ip": get_host_ip(name, auth),
-                "channel": "",
-                "resp_1m": resp,
+                "ip": ip,
+                "channel": gauge_value,
+                **metrics,
             }
         )
 
@@ -168,12 +188,14 @@ async def groups(request: Request):
 
 @app.get("/metrics")
 async def metrics() -> Response:
-    update_metrics()
-    data = generate_latest(registry)
-    return Response(data, media_type=CONTENT_TYPE_LATEST)
+    return Response(cached_data, media_type=CONTENT_TYPE_LATEST)
+
 
 
 @app.get("/icmp_stats")
 async def icmp_stats() -> JSONResponse:
     data = update_metrics()
     return JSONResponse(content=data)
+
+
+threading.Thread(target=metrics_updater, daemon=True).start()

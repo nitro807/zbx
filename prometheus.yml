@@ -6,3 +6,10 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: ['api:8000']
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: '.*'
+        replacement: 'api:8000'
+        target_label: instance
